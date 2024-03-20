@@ -1,0 +1,7 @@
+#__next {
+  display: flex; /*important*/
+}
+
+main {
+  width: 100%; /*important*/
+}

@@ -1,6 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import dayjs from 'dayjs';
 
+import { CurrentConditions, Day } from './types';
+
 export const weatherApi = createApi({
   reducerPath: 'weatherApi',
   baseQuery: fetchBaseQuery({
@@ -8,10 +10,22 @@ export const weatherApi = createApi({
       'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/',
   }),
   endpoints: (builder) => ({
-    getWeatherByPositon: builder.query<object, { lon: number; lat: number }>({
-      query: ({ lon, lat }) => ({
-        url: `timeline/${lat + ',' + lon}`,
-        params: { key: process.env.NEXT_PUBLIC_WEATHER_KEY },
+    getWeatherByPositon: builder.query<
+      {
+        currentConditions: CurrentConditions;
+        days: Array<Day>;
+        timezone: string;
+        resolvedAddress: string;
+      },
+      string
+    >({
+      query: (position) => ({
+        url: 'timeline/' + position,
+        params: {
+          key: process.env.NEXT_PUBLIC_WEATHER_KEY,
+          unitGroup: 'metric',
+          datestart: dayjs().format('YYYY-MM-DD'),
+        },
       }),
     }),
     getWeatherByLocations: builder.query<
@@ -19,7 +33,7 @@ export const weatherApi = createApi({
         locations: Array<{
           timezone: string;
           resolvedAddress: string;
-          days: Array<object>;
+          days: Array<Day>;
         }>;
       },
       string
@@ -32,7 +46,23 @@ export const weatherApi = createApi({
           datestart: dayjs().format('YYYY-MM-DD'),
           dateend: dayjs().add(3, 'day').format('YYYY-MM-DD'),
           include: 'days',
+          unitGroup: 'metric',
         },
+      }),
+    }),
+  }),
+});
+
+export const geoCodeApi = createApi({
+  reducerPath: 'geoCodeApi',
+  baseQuery: fetchBaseQuery({
+    baseUrl: 'https://geocode.xyz/',
+  }),
+  endpoints: (builder) => ({
+    getCityByGeoCode: builder.query<{ city: string; region: string }, string>({
+      query: (pos) => ({
+        url: pos,
+        params: { auth: process.env.NEXT_PUBLIC_GEOCODE_KEY, json: 1 },
       }),
     }),
   }),
@@ -40,3 +70,5 @@ export const weatherApi = createApi({
 
 export const { useGetWeatherByPositonQuery, useGetWeatherByLocationsQuery } =
   weatherApi;
+
+export const { useGetCityByGeoCodeQuery } = geoCodeApi;
