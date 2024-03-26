@@ -1,12 +1,13 @@
 import { Modal } from 'antd';
+import { MapContainer } from 'react-leaflet';
 import styled from 'styled-components';
 
 export const StyledModal = styled(Modal)`
   width: 400px !important;
 
-  /* .ant-modal-content {
-    height: 120px !important;
-  } */
+  .ant-modal-content {
+    padding-right: 40px;
+  }
 
   .ant-modal-body {
     text-align: center;
@@ -23,4 +24,8 @@ export const StyledModal = styled(Modal)`
   .ant-btn {
     width: 76px;
   }
+`;
+
+export const StyledMapContainer = styled(MapContainer)`
+  height: 100vh;
 `;

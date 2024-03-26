@@ -1,32 +1,37 @@
 import { setSelectedCountry } from '@app/locationSlice';
 import { RootState } from '@app/store';
 import { sortByCapital } from '@utils/common';
-import { AutoComplete } from 'antd';
 import { City, Country } from 'country-state-city';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { StyledWrapper } from './SearchBar.style';
+import { StyledAutoComplete, StyledWrapper } from './SearchBar.style';
 
 const SearchBar: React.FC = () => {
   const cities = City.getAllCities();
   const [options, setOptions] = useState(
-    cities
-      .sort(sortByCapital)
-      .map((c, i) => ({ label: c.name, value: c.name, key: i }))
+    cities.sort(sortByCapital).map((c, i) => ({
+      label: c.name + ',' + c.countryCode,
+      value: c.name,
+      key: i,
+    }))
   );
 
   const location = useSelector((s: RootState) => s.location);
 
+  const [state, setState] = useState(location);
+
+  useEffect(() => setState(location), [location]);
   const dispatch = useDispatch();
 
   return (
     <StyledWrapper>
-      <AutoComplete
-        defaultValue={location}
+      <StyledAutoComplete
+        value={state}
         options={options}
         placeholder="Search Your City"
-        onChange={(text: string) =>
+        onChange={(text: any) => {
+          setState(text);
           text
             ? setOptions(
                 cities
@@ -38,19 +43,19 @@ const SearchBar: React.FC = () => {
                   )
                   .sort(sortByCapital)
                   .map((c, i) => ({
-                    label: c.name,
+                    label: c.name + ',' + c.countryCode,
                     value: c.name,
                     key: i,
                   }))
               )
             : setOptions(
                 cities.sort(sortByCapital).map((c, i) => ({
-                  label: c.name,
+                  label: c.name + ',' + c.countryCode,
                   value: c.name,
                   key: i,
                 }))
-              )
-        }
+              );
+        }}
         onSelect={(value) =>
           dispatch(
             setSelectedCountry(
@@ -58,13 +63,12 @@ const SearchBar: React.FC = () => {
                 ',' +
                 Country.getCountryByCode(
                   cities.find((v) => v.name === value)?.countryCode as string
-                )
+                )?.name
             )
           )
         }
         onClear={() => dispatch(setSelectedCountry(''))}
         allowClear
-        style={{ width: '100%' }}
       />
     </StyledWrapper>
   );
