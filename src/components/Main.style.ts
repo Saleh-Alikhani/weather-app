@@ -1,7 +1,7 @@
 import { Col, FloatButton, Row, Table, Typography } from 'antd';
 import styled from 'styled-components';
 
-export const StyledTable = styled(Table)`
+export const StyledTable = styled(Table)<{ $isWin: boolean }>`
   margin: 40px 60px;
   border-style: solid;
   box-shadow: 8px 7px 25px 1px ${({ theme }) => theme.colors.bright[100]};
@@ -9,6 +9,10 @@ export const StyledTable = styled(Table)`
   border-color: ${({ theme }) => theme.colors.bright[100]};
   border-radius: ${({ theme }) => theme.border.radius.md};
   overflow: hidden;
+
+  .ant-table-cell {
+    ${({ $isWin }) => ($isWin ? 'padding: 8px 16px !important;' : '')};
+  }
 
   .ant-table-pagination {
     display: none;

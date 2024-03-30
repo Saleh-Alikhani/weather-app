@@ -3,6 +3,7 @@ import { setSelectedCountry } from '@app/locationSlice';
 import { RootState } from '@app/store';
 import { Col, Row, Typography } from 'antd';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import ConditionIcon from './ConditionIcon';
@@ -23,17 +24,23 @@ const Main: React.FC<Props> = (props) => {
   const { data, isLoading } = useGetWeatherByLocationsQuery(
     props.locations.join('|')
   );
+  const [isWin, setIsWin] = useState(false);
   const location = useSelector((state: RootState) => state.location);
 
   const router = useRouter();
 
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    setIsWin(navigator.userAgent.includes('Windows'));
+  }, []);
+
   return location ? (
     <SingleLocation location={location} />
   ) : (
     <>
       <StyledTable
+        $isWin={isWin}
         loading={isLoading}
         onRow={(data) => ({
           onClick: () => dispatch(setSelectedCountry(data.address)),
